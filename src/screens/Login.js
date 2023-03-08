@@ -3,25 +3,33 @@ import { SafeAreaView, View, Text, StyleSheet } from "react-native";
 import { Button, Input, Image } from "react-native-elements";
 import { Wrapper } from "../components";
 import { auth } from "../../firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+
 const Login = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // useEffect(() => {
-  //   const unsubscribe = auth.onAuthStateChanged((authUser) => {
-  //     if (authUser) {
-  //       props.navigation.replace("Home");
-  //     } else {
-  //       props.navigation.replace("Login");
-  //     }
-  //   });
-  //   return unsubscribe;
-  // }, []);
+
+  useEffect(() => {
+    if (auth?.currentUser) {
+      props.navigation.replace("Home");
+    }
+    // const unsubscribe = onAuthStateChanged(auth, (authUser) => {
+    //   if (authUser) {
+    //     props.navigation.replace("Home");
+    //   } else {
+    //     props.navigation.replace("Login");
+    //   }
+    // });
+    // return unsubscribe;
+  }, []);
 
   const handleLogin = () => {
     if (email !== "" && password !== "") {
       signInWithEmailAndPassword(auth, email, password)
-        .then((user) => console.log("Signin Successful!"))
+        .then((user) => {
+          props.navigation.replace("Home");
+          console.log("Signin Successful!");
+        })
         .catch((e) => console.log(e));
     }
   };
@@ -59,7 +67,7 @@ const Login = (props) => {
           containerStyle={styles.btn}
           title="Sign Up"
           type="outline"
-          onPress={() => props?.navigation.navigate("Register")}
+          onPress={() => props?.navigation.replace("Register")}
         />
       </View>
     </Wrapper>

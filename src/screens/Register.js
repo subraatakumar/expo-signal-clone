@@ -2,8 +2,9 @@ import React, { useState, useLayoutEffect } from "react";
 import { SafeAreaView, View, Text, StyleSheet } from "react-native";
 import { Button, Input, Image, Avatar, Icon } from "react-native-elements";
 import { StatusBar } from "expo-status-bar";
-import { auth } from "../../firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, storage } from "../../firebase";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import uploadImage from "../helpers/uploadImage";
 
 const Register = (props) => {
   const [fullName, setFullName] = useState("");
@@ -12,7 +13,7 @@ const Register = (props) => {
   //console.log(props?.route?.params?.uri);
   useLayoutEffect(() => {
     props.navigation.setOptions({
-      title: "Back To Login",
+      title: "Create User",
     });
   }, [props?.navigation]);
 
@@ -23,14 +24,24 @@ const Register = (props) => {
       email !== "" &&
       password !== ""
     ) {
-      // createUserWithEmailAndPassword(auth, email, password)
-      //   .then((authUser) => {
-      //     console.log("User Created!", authUser);
-      //     authUser.user.updateProfile({
-      //       displayName: fullName,
-      //     });
-      //   })
-      //   .catch((e) => console.log(e.message));
+      uploadImage(storage, props?.route?.params?.uri, "profileimg", email)
+        .then((t) => {
+          console.log("photo URL:", t);
+          createUserWithEmailAndPassword(auth, email, password)
+            .then((authUser) => {
+              console.log("User Created!", authUser, t, fullName);
+              updateProfile(auth.currentUser, {
+                displayName: fullName,
+                photoURL: t,
+              }).then((t) => {
+                auth.signOut();
+                console.log("Extra Profile Information updated!", t);
+                props.navigation.replace("Login");
+              });
+            })
+            .catch((e) => console.log("User Creation Error:", e.message));
+        })
+        .catch((e) => console.log("Rej:", e));
     }
   };
 
@@ -90,13 +101,13 @@ const Register = (props) => {
         <Button
           containerStyle={styles.btn}
           title="Sign Up"
-          onPress={() => handleRegister()}
+          onPress={handleRegister}
         />
         <Button
           containerStyle={styles.btn}
           title="Sign In"
           type="outline"
-          onPress={() => props.navigation.navigate("Login")}
+          onPress={() => props.navigation.replace("Login")}
         />
       </View>
     </SafeAreaView>
