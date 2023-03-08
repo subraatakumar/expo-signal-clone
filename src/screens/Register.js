@@ -2,9 +2,10 @@ import React, { useState, useLayoutEffect } from "react";
 import { SafeAreaView, View, Text, StyleSheet } from "react-native";
 import { Button, Input, Image, Avatar, Icon } from "react-native-elements";
 import { StatusBar } from "expo-status-bar";
-import { auth, storage } from "../../firebase";
+import { auth, db, storage } from "../../firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import uploadImage from "../helpers/uploadImage";
+import writeToDb from "../helpers/writeToDb";
 
 const Register = (props) => {
   const [fullName, setFullName] = useState("");
@@ -28,16 +29,25 @@ const Register = (props) => {
         .then((t) => {
           console.log("photo URL:", t);
           createUserWithEmailAndPassword(auth, email, password)
-            .then((authUser) => {
+            .then(async (authUser) => {
               console.log("User Created!", authUser, t, fullName);
-              updateProfile(auth.currentUser, {
+              await updateProfile(auth.currentUser, {
                 displayName: fullName,
                 photoURL: t,
-              }).then((t) => {
-                auth.signOut();
-                console.log("Extra Profile Information updated!", t);
-                props.navigation.replace("Login");
               });
+              await writeToDb(
+                db,
+                "users",
+                {
+                  uid: auth.currentUser.uid,
+                  displayName: auth.currentUser.displayName,
+                  photoURL: auth.currentUser.photoURL,
+                },
+                auth.currentUser.uid
+              );
+              await auth.signOut();
+              console.log("Extra Profile Information updated!");
+              props.navigation.replace("Login");
             })
             .catch((e) => console.log("User Creation Error:", e.message));
         })

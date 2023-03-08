@@ -2,7 +2,14 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
-import { Login, Register, Home, Camera } from "./src/screens";
+import {
+  Login,
+  Register,
+  Home,
+  Camera,
+  NewChat,
+  SelectUserFromList,
+} from "./src/screens";
 
 const Stack = createStackNavigator();
 
@@ -20,6 +27,15 @@ export default function App() {
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Camera" component={Camera} />
+        <Stack.Screen
+          name="NewChat"
+          component={NewChat}
+          options={{ title: "Write New Message" }}
+        />
+        <Stack.Screen
+          name="SelectUserFromList"
+          component={SelectUserFromList}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import { SafeAreaView, View, TouchableOpacity } from "react-native";
-import { Wrapper } from "../components";
+import { Wrapper, CustomListItem, AddChatBtn } from "../components";
 import { Button, Avatar, Text, Icon } from "react-native-elements";
 import { auth } from "../../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
 const Home = (props) => {
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!auth?.currentUser) {
       props.navigation.replace("Login");
     }
@@ -48,8 +48,10 @@ const Home = (props) => {
   };
 
   return (
-    <Wrapper>
+    <Wrapper style={{ flex: 1 }}>
       <Text h3>Home</Text>
+      <CustomListItem />
+      <AddChatBtn />
     </Wrapper>
   );
 };
