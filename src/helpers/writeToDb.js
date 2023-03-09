@@ -5,6 +5,7 @@ const writeToDb = (db, node, data, docId = "", merge = true) => {
     if (!db) rej("Invalid DB Reference");
     if (!node) rej("Invalid Node");
     if (typeof data !== "object") rej("Data Should be an object");
+    console.log(data);
     if (docId == "") {
       addDoc(collection(db, node), data)
         .then((docRef) => res(docRef.id))

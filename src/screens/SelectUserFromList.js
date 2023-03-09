@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View } from "react-native";
+import { View, FlatList, TouchableOpacity } from "react-native";
 import { Text } from "react-native-elements";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
 import SingleUser from "../components/SingleUser";
-import { FlatList } from "react-native-gesture-handler";
 
-const SelectUserFromList = () => {
+const SelectUserFromList = (props) => {
   const [users, setUsers] = useState([]);
   useEffect(() => {
     const q = query(collection(db, "users"));
@@ -22,11 +21,28 @@ const SelectUserFromList = () => {
     });
   }, []);
 
+  const RenderItem = ({ item }) => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          if (props?.route?.params?.next) {
+            props?.navigation.navigate(props?.route?.params?.next, {
+              item: item,
+            });
+          }
+        }}
+      >
+        <SingleUser item={item} />
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <View>
       <FlatList
         data={users}
-        renderItem={SingleUser}
+        renderItem={RenderItem}
+        keyExtractor={(_, index) => index.toString()}
         ListEmptyComponent={() => <Text h3>No Users</Text>}
       />
     </View>
